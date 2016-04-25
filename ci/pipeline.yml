@@ -71,7 +71,7 @@ jobs:
           run:
             path: sh 
             args: 
-            - repo/ci/tasks/m2.sh
+            - repo-metflix/ci/tasks/m2.sh
             - init
       - put: m2
         params:
@@ -97,7 +97,7 @@ jobs:
           run:
             path: sh
             args: 
-            - repo/ci/tasks/m2.sh
+            - repo-metflix/ci/tasks/m2.sh
       - put: m2
         params:
           import_file: to-push/rootfs.tar
