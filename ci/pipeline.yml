@@ -1,36 +1,36 @@
 ---
 resources:
-  - name: repo-config-server
+  - name: config-server-repo
     type: git
     source:
       uri: https://github.com/metflix/config-server
       branch: master
-  - name: repo-eureka-server
+  - name: eureka-server-repo
     type: git
     source:
       uri: https://github.com/metflix/eureka-server
       branch: master
-  - name: repo-hystrix-dashboard
+  - name: hystrix-dashboard-repo
     type: git
     source:
       uri: https://github.com/metflix/hystrix-dashboard
       branch: master
-  - name: repo-membership
+  - name: membership-repo
     type: git
     source:
       uri: https://github.com/metflix/membership
       branch: master
-  - name: repo-recommendations
+  - name: recommendations-repo
     type: git
     source:
       uri: https://github.com/metflix/recommendations
       branch: master
-  - name: repo-ui
+  - name: ui-repo
     type: git
     source:
       uri: https://github.com/metflix/ui
       branch: master
-  - name: repo-metflix
+  - name: metflix-repo
     type: git
     source:
       uri: https://github.com/metflix/metflix
@@ -53,9 +53,10 @@ resources:
       email: {{docker-email}}  
 
 jobs:
-  - name: unit-config-server
+  - name: config-server-unit
+    serial: true
     plan:
-      - get: repo-config-server
+      - get: config-server-repo
         trigger: true
       - get: m2
       - task: unit
@@ -67,7 +68,7 @@ jobs:
               repository: java
               tag: 8-jdk-alpine 
           inputs:
-            - name: repo-config-server
+            - name: config-server-repo
               path: repo
             - name: m2  
           run:
@@ -77,9 +78,42 @@ jobs:
             - |
               cd repo
               ./mvnw test -Dmaven.repo.local=../m2/rootfs/opt/m2
-  - name: unit-eureka-server
+  - name: deploy-config-server
     plan:
-      - get: repo-eureka-server
+      - get: config-server-repo
+        trigger: true
+        passed: [ config-server-unit ]
+      - get: m2
+      - task: unit
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: java
+              tag: 8-jdk-alpine 
+          inputs:
+            - name: config-server-repo
+              path: repo
+            - name: m2 
+          outputs:
+            - name: output 
+          run:
+            path: sh
+            args: 
+            - -c
+            - |
+              cd repo
+              ./mvnw package -Dmaven.test.skip=true -Dmaven.repo.local=../m2/rootfs/opt/m2
+              cp target/*.jar ../output/app.jar
+      - put: cf
+        params:
+          manifest: repo/manifest.yml
+          path: output/app.jar
+          current_app_name: config-server
+  - name: eureka-server-unit
+    plan:
+      - get: eureka-server-repo
         trigger: true
       - get: m2
       - task: unit
@@ -91,7 +125,7 @@ jobs:
               repository: java
               tag: 8-jdk-alpine 
           inputs:
-            - name: repo-eureka-server
+            - name: eureka-server-repo
               path: repo
             - name: m2  
           run:
@@ -101,9 +135,9 @@ jobs:
             - |
               cd repo
               ./mvnw test -Dmaven.repo.local=../m2/rootfs/opt/m2
-  - name: unit-hystrix-dashboard
+  - name: hystrix-dashboard-unit
     plan:
-      - get: repo-hystrix-dashboard
+      - get: hystrix-dashboard-repo
         trigger: true
       - get: m2
       - task: unit
@@ -115,7 +149,7 @@ jobs:
               repository: java
               tag: 8-jdk-alpine 
           inputs:
-            - name: repo-hystrix-dashboard
+            - name: hystrix-dashboard-repo
               path: repo
             - name: m2  
           run:
@@ -125,9 +159,9 @@ jobs:
             - |
               cd repo
               ./mvnw test -Dmaven.repo.local=../m2/rootfs/opt/m2
-  - name: unit-membership
+  - name: membership-unit
     plan:
-      - get: repo-membership
+      - get: membership-repo
         trigger: true
       - get: m2
       - task: unit
@@ -139,7 +173,7 @@ jobs:
               repository: java
               tag: 8-jdk-alpine 
           inputs:
-            - name: repo-membership
+            - name: membership-repo
               path: repo
             - name: m2  
           run:
@@ -149,9 +183,9 @@ jobs:
             - |
               cd repo
               ./mvnw test -Dmaven.repo.local=../m2/rootfs/opt/m2
-  - name: unit-recommendations
+  - name: recommendations-unit
     plan:
-      - get: repo-recommendations
+      - get: recommendations-repo
         trigger: true
       - get: m2
       - task: unit
@@ -163,7 +197,7 @@ jobs:
               repository: java
               tag: 8-jdk-alpine 
           inputs:
-            - name: repo-recommendations
+            - name: recommendations-repo
               path: repo
             - name: m2  
           run:
@@ -173,9 +207,9 @@ jobs:
             - |
               cd repo
               ./mvnw test -Dmaven.repo.local=../m2/rootfs/opt/m2
-  - name: unit-ui
+  - name: ui-unit
     plan:
-      - get: repo-ui
+      - get: ui-repo
         trigger: true
       - get: m2
       - task: unit
@@ -187,7 +221,7 @@ jobs:
               repository: java
               tag: 8-jdk-alpine 
           inputs:
-            - name: repo-ui
+            - name: ui-repo
               path: repo
             - name: m2  
           run:
@@ -199,7 +233,7 @@ jobs:
               ./mvnw test -Dmaven.repo.local=../m2/rootfs/opt/m2
   - name: init-m2
     plan:
-      - get: repo-metflix
+      - get: metflix-repo
       - task: build-m2
         config:
           platform: linux
@@ -209,13 +243,14 @@ jobs:
               repository: java
               tag: 8-jdk-alpine 
           inputs:
-            - name: repo-metflix
+            - name: metflix-repo
+              path: repo
           outputs:
             - name: to-push  
           run:
             path: sh 
             args: 
-            - repo-metflix/ci/tasks/m2.sh
+            - repo/ci/tasks/m2.sh
             - init
       - put: m2
         params:
@@ -223,7 +258,7 @@ jobs:
 
   - name: update-m2
     plan:
-      - get: repo-metflix
+      - get: metflix-repo
       - get: m2
       - task: build-m2
         config:
@@ -234,14 +269,15 @@ jobs:
               repository: java
               tag: 8-jdk-alpine 
           inputs:
-            - name: repo-metflix
+            - name: metflix-repo
+              path: repo
             - name: m2
           outputs:
             - name: to-push    
           run:
             path: sh
             args: 
-            - repo-metflix/ci/tasks/m2.sh
+            - repo/ci/tasks/m2.sh
       - put: m2
         params:
           import_file: to-push/rootfs.tar

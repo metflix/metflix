@@ -15,7 +15,7 @@ if [ "$1" == "init" ]; then
 	mkdir -p $M2REPO
 fi
 
-cd repo-metflix
+cd repo
 	for d in $DIR;do
 	    echo "++++ Build $d ++++"
 	    cd $d
