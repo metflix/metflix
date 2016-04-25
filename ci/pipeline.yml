@@ -53,6 +53,150 @@ resources:
       email: {{docker-email}}  
 
 jobs:
+  - name: unit-config-server
+    plan:
+      - get: repo-config-server
+        trigger: true
+      - get: m2
+      - task: unit
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: java
+              tag: 8-jdk-alpine 
+          inputs:
+            - name: repo-config-server
+              path: repo
+            - name: m2  
+          run:
+            path: sh
+            args: 
+            - -c
+            - |
+              cd repo
+              ./mvnw test -Dmaven.repo.local=../m2/rootfs/opt/m2
+  - name: unit-eureka-server
+    plan:
+      - get: repo-eureka-server
+        trigger: true
+      - get: m2
+      - task: unit
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: java
+              tag: 8-jdk-alpine 
+          inputs:
+            - name: repo-eureka-server
+              path: repo
+            - name: m2  
+          run:
+            path: sh
+            args: 
+            - -c
+            - |
+              cd repo
+              ./mvnw test -Dmaven.repo.local=../m2/rootfs/opt/m2
+  - name: unit-hystrix-dashboard
+    plan:
+      - get: repo-hystrix-dashboard
+        trigger: true
+      - get: m2
+      - task: unit
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: java
+              tag: 8-jdk-alpine 
+          inputs:
+            - name: repo-hystrix-dashboard
+              path: repo
+            - name: m2  
+          run:
+            path: sh
+            args: 
+            - -c
+            - |
+              cd repo
+              ./mvnw test -Dmaven.repo.local=../m2/rootfs/opt/m2
+  - name: unit-membership
+    plan:
+      - get: repo-membership
+        trigger: true
+      - get: m2
+      - task: unit
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: java
+              tag: 8-jdk-alpine 
+          inputs:
+            - name: repo-membership
+              path: repo
+            - name: m2  
+          run:
+            path: sh
+            args: 
+            - -c
+            - |
+              cd repo
+              ./mvnw test -Dmaven.repo.local=../m2/rootfs/opt/m2
+  - name: unit-recommendations
+    plan:
+      - get: repo-recommendations
+        trigger: true
+      - get: m2
+      - task: unit
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: java
+              tag: 8-jdk-alpine 
+          inputs:
+            - name: repo-recommendations
+              path: repo
+            - name: m2  
+          run:
+            path: sh
+            args: 
+            - -c
+            - |
+              cd repo
+              ./mvnw test -Dmaven.repo.local=../m2/rootfs/opt/m2
+  - name: unit-ui
+    plan:
+      - get: repo-ui
+        trigger: true
+      - get: m2
+      - task: unit
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: java
+              tag: 8-jdk-alpine 
+          inputs:
+            - name: repo-ui
+              path: repo
+            - name: m2  
+          run:
+            path: sh
+            args: 
+            - -c
+            - |
+              cd repo
+              ./mvnw test -Dmaven.repo.local=../m2/rootfs/opt/m2
   - name: init-m2
     plan:
       - get: repo-metflix
