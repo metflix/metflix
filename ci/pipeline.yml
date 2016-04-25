@@ -65,7 +65,7 @@ jobs:
               repository: java
               tag: 8-jdk-alpine 
           inputs:
-            - name: repo
+            - name: repo-metflix
           outputs:
             - name: to-push  
           run:
@@ -90,7 +90,7 @@ jobs:
               repository: java
               tag: 8-jdk-alpine 
           inputs:
-            - name: repo
+            - name: repo-metflix
             - name: m2
           outputs:
             - name: to-push    

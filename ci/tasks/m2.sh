@@ -15,8 +15,7 @@ if [ "$1" == "init" ]; then
 	mkdir -p $M2REPO
 fi
 
-pushd repo
-	git submodule update --init --recursive --force
+pushd repo-metflix
 	for d in $DIR;do
 	    echo "++++ Build $d ++++"
 	    pushd $d
