@@ -1,0 +1,103 @@
+---
+resources:
+  - name: repo-config-server
+    type: git
+    source:
+      uri: https://github.com/metflix/config-server
+      branch: master
+  - name: repo-eureka-server
+    type: git
+    source:
+      uri: https://github.com/metflix/eureka-server
+      branch: master
+  - name: repo-hystrix-dashboard
+    type: git
+    source:
+      uri: https://github.com/metflix/hystrix-dashboard
+      branch: master
+  - name: repo-membership
+    type: git
+    source:
+      uri: https://github.com/metflix/membership
+      branch: master
+  - name: repo-recommendations
+    type: git
+    source:
+      uri: https://github.com/metflix/recommendations
+      branch: master
+  - name: repo-ui
+    type: git
+    source:
+      uri: https://github.com/metflix/ui
+      branch: master
+  - name: repo-metflix
+    type: git
+    source:
+      uri: https://github.com/metflix/metflix
+      branch: master
+  - name: cf
+    type: cf
+    source:
+      api: {{cf-api}}
+      username: {{cf-username}}
+      password: {{cf-password}}
+      organization: {{cf-org}}
+      space: {{cf-space}}
+      skip_cert_check: true
+  - name: m2
+    type: docker-image
+    source:
+      repository: {{docker-repo}}
+      username: {{docker-username}}
+      password: {{docker-password}}  
+      email: {{docker-email}}  
+
+jobs:
+  - name: init-m2
+    plan:
+      - get: repo-metflix
+      - task: build-m2
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: java
+              tag: 8-jdk-alpine 
+          inputs:
+            - name: repo
+          outputs:
+            - name: to-push  
+          run:
+            path: sh 
+            args: 
+            - repo/ci/tasks/m2.sh
+            - init
+      - put: m2
+        params:
+          import_file: to-push/rootfs.tar
+
+  - name: update-m2
+    plan:
+      - get: repo-metflix
+      - get: m2
+      - task: build-m2
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: java
+              tag: 8-jdk-alpine 
+          inputs:
+            - name: repo
+            - name: m2
+          outputs:
+            - name: to-push    
+          run:
+            path: sh
+            args: 
+            - repo/ci/tasks/m2.sh
+      - put: m2
+        params:
+          import_file: to-push/rootfs.tar

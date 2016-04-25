@@ -1,0 +1,18 @@
+[submodule "config-server"]
+	path = config-server
+	url = https://github.com/metflix/config-server.git
+[submodule "eureka-server"]
+	path = eureka-server
+	url = https://github.com/metflix/eureka-server.git
+[submodule "hystrix-dashboard"]
+	path = hystrix-dashboard
+	url = https://github.com/metflix/hystrix-dashboard.git
+[submodule "membership"]
+	path = membership
+	url = https://github.com/metflix/membership.git
+[submodule "recommendations"]
+	path = recommendations
+	url = https://github.com/metflix/recommendations.git
+[submodule "ui"]
+	path = ui
+	url = https://github.com/metflix/ui.git
