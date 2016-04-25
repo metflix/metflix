@@ -18,9 +18,9 @@ fi
 cd repo-metflix
 	for d in $DIR;do
 	    echo "++++ Build $d ++++"
-	    pushd $d
+	    cd $d
 	        ./mvnw clean package -Dmaven.repo.local=$M2REPO
-	    popd
+	    cd ..
 	done
 cd ..
 
