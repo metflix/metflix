@@ -74,10 +74,7 @@ jobs:
           run:
             path: sh
             args: 
-            - -c
-            - |
-              cd repo
-              ./mvnw test -Dmaven.repo.local=../m2/rootfs/opt/m2
+            - repo/ci/tasks/unit.sh
   - name: config-server-deploy
     plan:
       - get: config-server-repo
@@ -102,7 +99,6 @@ jobs:
             args: 
             - -c
             - |
-              env
               cd config-server-repo
               ./mvnw package -Dmaven.test.skip=true -Dmaven.repo.local=../m2/rootfs/opt/m2
               cp target/*.jar ../output/app.jar
@@ -131,10 +127,7 @@ jobs:
           run:
             path: sh
             args: 
-            - -c
-            - |
-              cd repo
-              ./mvnw test -Dmaven.repo.local=../m2/rootfs/opt/m2
+            - repo/ci/tasks/unit.sh
   - name: hystrix-dashboard-unit
     plan:
       - get: hystrix-dashboard-repo
@@ -155,10 +148,7 @@ jobs:
           run:
             path: sh
             args: 
-            - -c
-            - |
-              cd repo
-              ./mvnw test -Dmaven.repo.local=../m2/rootfs/opt/m2
+            - repo/ci/tasks/unit.sh
   - name: membership-unit
     plan:
       - get: membership-repo
@@ -179,10 +169,7 @@ jobs:
           run:
             path: sh
             args: 
-            - -c
-            - |
-              cd repo
-              ./mvnw test -Dmaven.repo.local=../m2/rootfs/opt/m2
+            - repo/ci/tasks/unit.sh
   - name: recommendations-unit
     plan:
       - get: recommendations-repo
@@ -203,10 +190,7 @@ jobs:
           run:
             path: sh
             args: 
-            - -c
-            - |
-              cd repo
-              ./mvnw test -Dmaven.repo.local=../m2/rootfs/opt/m2
+            - repo/ci/tasks/unit.sh
   - name: ui-unit
     plan:
       - get: ui-repo
@@ -227,10 +211,7 @@ jobs:
           run:
             path: sh
             args: 
-            - -c
-            - |
-              cd repo
-              ./mvnw test -Dmaven.repo.local=../m2/rootfs/opt/m2
+            - repo/ci/tasks/unit.sh
   - name: init-m2
     plan:
       - get: metflix-repo
