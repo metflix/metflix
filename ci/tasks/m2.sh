@@ -15,16 +15,16 @@ if [ "$1" == "init" ]; then
 	mkdir -p $M2REPO
 fi
 
-pushd repo-metflix
+cd repo-metflix
 	for d in $DIR;do
 	    echo "++++ Build $d ++++"
 	    pushd $d
 	        ./mvnw clean package -Dmaven.repo.local=$M2REPO
 	    popd
 	done
-popd
+cd ..
 
-pushd m2
+cd m2
 	tar -C rootfs -cf rootfs.tar .
 	mv rootfs.tar ../to-push
-popd
+cd ..
