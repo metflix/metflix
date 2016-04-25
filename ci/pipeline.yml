@@ -78,13 +78,13 @@ jobs:
             - |
               cd repo
               ./mvnw test -Dmaven.repo.local=../m2/rootfs/opt/m2
-  - name: deploy-config-server
+  - name: config-server-deploy
     plan:
       - get: config-server-repo
         trigger: true
         passed: [ config-server-unit ]
       - get: m2
-      - task: unit
+      - task: package
         config:
           platform: linux
           image_resource:
@@ -94,7 +94,6 @@ jobs:
               tag: 8-jdk-alpine 
           inputs:
             - name: config-server-repo
-              path: repo
             - name: m2 
           outputs:
             - name: output 
@@ -103,12 +102,13 @@ jobs:
             args: 
             - -c
             - |
-              cd repo
+              env
+              cd config-server-repo
               ./mvnw package -Dmaven.test.skip=true -Dmaven.repo.local=../m2/rootfs/opt/m2
               cp target/*.jar ../output/app.jar
       - put: cf
         params:
-          manifest: repo/manifest.yml
+          manifest: config-server-repo/manifest.yml
           path: output/app.jar
           current_app_name: config-server
   - name: eureka-server-unit
