@@ -58,6 +58,7 @@ jobs:
     plan:
       - get: config-server-repo
         trigger: true
+      - get: metflix-repo
       - get: m2
       - task: unit
         config:
@@ -70,16 +71,18 @@ jobs:
           inputs:
             - name: config-server-repo
               path: repo
+            - name: metflix-repo
             - name: m2  
           run:
             path: sh
             args: 
-            - repo/ci/tasks/unit.sh
+            - metflix-repo/ci/tasks/unit.sh
   - name: config-server-deploy
     plan:
       - get: config-server-repo
         trigger: true
         passed: [ config-server-unit ]
+      - get: metflix-repo
       - get: m2
       - task: package
         config:
@@ -91,17 +94,15 @@ jobs:
               tag: 8-jdk-alpine 
           inputs:
             - name: config-server-repo
+              path: repo
+            - name: metflix-repo
             - name: m2 
           outputs:
             - name: output 
           run:
             path: sh
             args: 
-            - -c
-            - |
-              cd config-server-repo
-              ./mvnw package -Dmaven.test.skip=true -Dmaven.repo.local=../m2/rootfs/opt/m2
-              cp target/*.jar ../output/app.jar
+            - metflix-repo/ci/tasks/package.sh
       - put: cf
         params:
           manifest: config-server-repo/manifest.yml
@@ -111,6 +112,7 @@ jobs:
     plan:
       - get: eureka-server-repo
         trigger: true
+      - get: metflix-repo
       - get: m2
       - task: unit
         config:
@@ -123,15 +125,17 @@ jobs:
           inputs:
             - name: eureka-server-repo
               path: repo
+            - name: metflix-repo
             - name: m2  
           run:
             path: sh
             args: 
-            - repo/ci/tasks/unit.sh
+            - metflix-repo/ci/tasks/unit.sh
   - name: hystrix-dashboard-unit
     plan:
       - get: hystrix-dashboard-repo
         trigger: true
+      - get: metflix-repo
       - get: m2
       - task: unit
         config:
@@ -144,15 +148,17 @@ jobs:
           inputs:
             - name: hystrix-dashboard-repo
               path: repo
+            - name: metflix-repo
             - name: m2  
           run:
             path: sh
             args: 
-            - repo/ci/tasks/unit.sh
+            - metflix-repo/ci/tasks/unit.sh
   - name: membership-unit
     plan:
       - get: membership-repo
         trigger: true
+      - get: metflix-repo
       - get: m2
       - task: unit
         config:
@@ -169,11 +175,12 @@ jobs:
           run:
             path: sh
             args: 
-            - repo/ci/tasks/unit.sh
+            - metflix-repo/ci/tasks/unit.sh
   - name: recommendations-unit
     plan:
       - get: recommendations-repo
         trigger: true
+      - get: metflix-repo
       - get: m2
       - task: unit
         config:
@@ -186,15 +193,17 @@ jobs:
           inputs:
             - name: recommendations-repo
               path: repo
+            - name: metflix-repo
             - name: m2  
           run:
             path: sh
             args: 
-            - repo/ci/tasks/unit.sh
+            - metflix-repo/ci/tasks/unit.sh
   - name: ui-unit
     plan:
       - get: ui-repo
         trigger: true
+      - get: metflix-repo
       - get: m2
       - task: unit
         config:
@@ -207,11 +216,12 @@ jobs:
           inputs:
             - name: ui-repo
               path: repo
+            - name: metflix-repo
             - name: m2  
           run:
             path: sh
             args: 
-            - repo/ci/tasks/unit.sh
+            - metflix-repo/ci/tasks/unit.sh
   - name: init-m2
     plan:
       - get: metflix-repo
@@ -226,6 +236,7 @@ jobs:
           inputs:
             - name: metflix-repo
               path: repo
+            - name: metflix-repo
           outputs:
             - name: to-push  
           run:
@@ -252,6 +263,7 @@ jobs:
           inputs:
             - name: metflix-repo
               path: repo
+            - name: metflix-repo
             - name: m2
           outputs:
             - name: to-push    
