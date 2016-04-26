@@ -111,9 +111,6 @@ jobs:
 
   - name: config-server-create-service
     plan:
-      - get: config-server-repo
-      - get: metflix-repo
-      - get: m2
       - task: create-service
         config:
           platform: linux
@@ -186,9 +183,6 @@ jobs:
 
   - name: eureka-server-create-service
     plan:
-      - get: eureka-server-repo
-      - get: metflix-repo
-      - get: m2
       - task: create-service
         config:
           platform: linux
