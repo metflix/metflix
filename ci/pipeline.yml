@@ -107,7 +107,28 @@ jobs:
         params:
           manifest: config-server-repo/manifest.yml
           path: output/app.jar
-          current_app_name: config-server
+          current_app_name: config-server-metflix
+
+  - name: config-server-create-service
+    plan:
+      - get: config-server-repo
+      - get: metflix-repo
+      - get: m2
+      - task: create-service
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: governmentpaas/cf-cli
+          run:
+            path: sh
+            args: 
+            - -c 
+            - | 
+              cf login -a {{cf-api}} -u {{cf-username}} -p {{cf-password}} -o {{cf-org}} -s {{cf-space}}
+              cf create-user-provided-service config-server -p '{"uri":"http://config-server-metflix.cfapps.io"}'
+
   - name: eureka-server-unit
     plan:
       - get: eureka-server-repo
@@ -131,6 +152,57 @@ jobs:
             path: sh
             args: 
             - metflix-repo/ci/tasks/unit.sh
+  - name: eureka-server-deploy
+    plan:
+      - get: eureka-server-repo
+        trigger: true
+        passed: [ eureka-server-unit ]
+      - get: metflix-repo
+      - get: m2
+      - task: package
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: java
+              tag: 8-jdk-alpine 
+          inputs:
+            - name: eureka-server-repo
+              path: repo
+            - name: metflix-repo
+            - name: m2 
+          outputs:
+            - name: output 
+          run:
+            path: sh
+            args: 
+            - metflix-repo/ci/tasks/package.sh
+      - put: cf
+        params:
+          manifest: eureka-server-repo/manifest.yml
+          path: output/app.jar
+          current_app_name: eureka-server-metflix
+
+  - name: eureka-server-create-service
+    plan:
+      - get: eureka-server-repo
+      - get: metflix-repo
+      - get: m2
+      - task: create-service
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: governmentpaas/cf-cli
+          run:
+            path: sh
+            args: 
+            - -c 
+            - | 
+              cf login -a {{cf-api}} -u {{cf-username}} -p {{cf-password}} -o {{cf-org}} -s {{cf-space}}
+              cf create-user-provided-service eureka-server -p '{"uri":"http://eureka-server-metflix.cfapps.io"}'
   - name: hystrix-dashboard-unit
     plan:
       - get: hystrix-dashboard-repo
@@ -154,6 +226,37 @@ jobs:
             path: sh
             args: 
             - metflix-repo/ci/tasks/unit.sh
+  - name: hystrix-dashboard-deploy
+    plan:
+      - get: hystrix-dashboard-repo
+        trigger: true
+        passed: [ hystrix-dashboard-unit ]
+      - get: metflix-repo
+      - get: m2
+      - task: package
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: java
+              tag: 8-jdk-alpine 
+          inputs:
+            - name: hystrix-dashboard-repo
+              path: repo
+            - name: metflix-repo
+            - name: m2 
+          outputs:
+            - name: output 
+          run:
+            path: sh
+            args: 
+            - metflix-repo/ci/tasks/package.sh
+      - put: cf
+        params:
+          manifest: hystrix-dashboard-repo/manifest.yml
+          path: output/app.jar
+          current_app_name: hystrix-dashboard-metflix
   - name: membership-unit
     plan:
       - get: membership-repo
@@ -176,6 +279,37 @@ jobs:
             path: sh
             args: 
             - metflix-repo/ci/tasks/unit.sh
+  - name: membership-deploy
+    plan:
+      - get: membership-repo
+        trigger: true
+        passed: [ membership-unit ]
+      - get: metflix-repo
+      - get: m2
+      - task: package
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: java
+              tag: 8-jdk-alpine 
+          inputs:
+            - name: membership-repo
+              path: repo
+            - name: metflix-repo
+            - name: m2 
+          outputs:
+            - name: output 
+          run:
+            path: sh
+            args: 
+            - metflix-repo/ci/tasks/package.sh
+      - put: cf
+        params:
+          manifest: membership-repo/manifest.yml
+          path: output/app.jar
+          current_app_name: membership-metflix
   - name: recommendations-unit
     plan:
       - get: recommendations-repo
@@ -199,6 +333,37 @@ jobs:
             path: sh
             args: 
             - metflix-repo/ci/tasks/unit.sh
+  - name: recommendations-deploy
+    plan:
+      - get: recommendations-repo
+        trigger: true
+        passed: [ recommendations-unit ]
+      - get: metflix-repo
+      - get: m2
+      - task: package
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: java
+              tag: 8-jdk-alpine 
+          inputs:
+            - name: recommendations-repo
+              path: repo
+            - name: metflix-repo
+            - name: m2 
+          outputs:
+            - name: output 
+          run:
+            path: sh
+            args: 
+            - metflix-repo/ci/tasks/package.sh
+      - put: cf
+        params:
+          manifest: recommendations-repo/manifest.yml
+          path: output/app.jar
+          current_app_name: recommendations-metflix
   - name: ui-unit
     plan:
       - get: ui-repo
@@ -222,6 +387,38 @@ jobs:
             path: sh
             args: 
             - metflix-repo/ci/tasks/unit.sh
+  - name: ui-deploy
+    plan:
+      - get: ui-repo
+        trigger: true
+        passed: [ ui-unit ]
+      - get: metflix-repo
+      - get: m2
+      - task: package
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: java
+              tag: 8-jdk-alpine 
+          inputs:
+            - name: ui-repo
+              path: repo
+            - name: metflix-repo
+            - name: m2 
+          outputs:
+            - name: output 
+          run:
+            path: sh
+            args: 
+            - metflix-repo/ci/tasks/package.sh
+      - put: cf
+        params:
+          manifest: ui-repo/manifest.yml
+          path: output/app.jar
+          current_app_name: ui-metflix
+
   - name: init-m2
     plan:
       - get: metflix-repo
@@ -236,7 +433,6 @@ jobs:
           inputs:
             - name: metflix-repo
               path: repo
-            - name: metflix-repo
           outputs:
             - name: to-push  
           run:
@@ -263,7 +459,6 @@ jobs:
           inputs:
             - name: metflix-repo
               path: repo
-            - name: metflix-repo
             - name: m2
           outputs:
             - name: to-push    
@@ -274,3 +469,53 @@ jobs:
       - put: m2
         params:
           import_file: to-push/rootfs.tar
+
+groups:
+  - name: all
+    jobs:
+    - init-m2
+    - update-m2
+    - config-server-unit
+    - config-server-deploy
+    - config-server-create-service
+    - eureka-server-unit
+    - eureka-server-deploy
+    - eureka-server-create-service
+    - hystrix-dashboard-unit
+    - hystrix-dashboard-deploy
+    - membership-unit
+    - membership-deploy
+    - recommendations-unit
+    - recommendations-deploy
+    - ui-unit
+    - ui-deploy
+  - name: m2
+    jobs:
+    - init-m2
+    - update-m2
+  - name: config-server
+    jobs:
+    - config-server-unit
+    - config-server-deploy
+    - config-server-create-service
+  - name: eureka-server
+    jobs:
+    - eureka-server-unit
+    - eureka-server-deploy
+    - eureka-server-create-service
+  - name: hystrix-dashboard
+    jobs:
+    - hystrix-dashboard-unit
+    - hystrix-dashboard-deploy
+  - name: membership
+    jobs:
+    - membership-unit
+    - membership-deploy
+  - name: recommendations
+    jobs:
+    - recommendations-unit
+    - recommendations-deploy
+  - name: ui
+    jobs:
+    - ui-unit
+    - ui-deploy
